@@ -1,4 +1,7 @@
-# infra
+<div align="center">
+  <img src="icon.svg" width="120" />
+  <h1>infra</h1>
+</div>
 
 Infrastructure project monorepo. Four standalone projects covering persistence, search, networking, and graphics.
 
