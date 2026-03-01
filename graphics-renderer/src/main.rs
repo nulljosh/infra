@@ -1,6 +1,5 @@
 use nalgebra as na;
 use na::{Matrix4, Point3, Vector3, Vector4};
-use std::f32::consts::PI;
 use std::io::Write;
 
 const WIDTH: usize = 800;
@@ -19,7 +18,7 @@ impl Color {
         Color { r, g, b }
     }
 
-    fn white() -> Self {
+    fn _white() -> Self {
         Color { r: 255, g: 255, b: 255 }
     }
 
