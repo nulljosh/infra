@@ -4,11 +4,11 @@ TF-IDF + BM25 local search engine. Crawl, index, query.
 
 ## Scope
 
-- Local file indexing with optional web crawler
-- Inverted index with TF-IDF scoring (BM25 stub ready)
-- Boolean and phrase query support (stub ready)
+- Local file indexing with BFS web crawler (robots.txt aware)
+- Inverted index with BM25 scoring (K1=1.5, B=0.75)
+- Boolean query parser (AND, OR, NOT, quoted phrases)
 - JSON document store for persistence
-- REST API for search queries (stub ready)
+- Flask REST API (`GET /search?q=`, `POST /index`)
 
 ## Quick Start
 
@@ -57,18 +57,20 @@ Crawler → Tokenizer → Inverted Index → Document Store
 
 ## Code Stats
 
-| Module | File | LOC | Status |
-|--------|------|-----|--------|
-| Tokenizer | src/indexer/tokenizer.py | 4 | working |
-| Inverted Index | src/indexer/index.py | 74 | working |
-| TF-IDF/BM25 | src/indexer/tfidf.py | — | stub |
-| Query Parser | src/query/parser.py | — | stub |
-| Ranker | src/query/ranker.py | — | stub |
-| Search CLI | src/query/search.py | 16 | working |
-| Crawler | src/crawler/crawler.py | — | stub |
-| robots.txt | src/crawler/robots.py | — | stub |
-| Document Store | src/storage/store.py | — | stub |
-| REST API | src/server/api.py | — | stub |
+| Module | File | Status |
+|--------|------|--------|
+| Tokenizer | src/indexer/tokenizer.py | done |
+| Inverted Index | src/indexer/index.py | done |
+| BM25 Scoring | src/indexer/tfidf.py | done |
+| Query Parser | src/query/parser.py | done |
+| Ranker | src/query/ranker.py | done |
+| Search CLI | src/query/search.py | done |
+| Crawler | src/crawler/crawler.py | done |
+| robots.txt | src/crawler/robots.py | done |
+| Document Store | src/storage/store.py | done |
+| REST API | src/server/api.py | done |
+
+28 tests, 0 skipped.
 
 ## Pairs With
 

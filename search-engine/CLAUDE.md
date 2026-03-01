@@ -14,14 +14,14 @@ Python 3.10+, beautifulsoup4 (crawl), flask (API), nltk (stemming), requests (HT
 |--------|------|---------|--------|
 | Tokenizer | src/indexer/tokenizer.py | regex split, lowercase | working (4 LOC) |
 | Inverted Index | src/indexer/index.py | term → doc mapping, TF tracking | working (74 LOC) |
-| TF-IDF/BM25 | src/indexer/tfidf.py | scoring algorithms | stub |
-| Query Parser | src/query/parser.py | Boolean/phrase syntax | stub |
-| Ranker | src/query/ranker.py | merge + rank results | stub |
-| Search CLI | src/query/search.py | load index, run query | working (16 LOC) |
-| Crawler | src/crawler/crawler.py | BFS link follower | stub |
-| robots.txt | src/crawler/robots.py | crawl permissions | stub |
-| Document Store | src/storage/store.py | JSON persistence | stub |
-| REST API | src/server/api.py | HTTP /search endpoint | stub |
+| BM25 Scoring | src/indexer/tfidf.py | BM25 + TF-IDF scoring | done |
+| Query Parser | src/query/parser.py | AND/OR/NOT/phrases | done |
+| Ranker | src/query/ranker.py | merge + rank results | done |
+| Search CLI | src/query/search.py | load index, run query | done |
+| Crawler | src/crawler/crawler.py | BFS, depth-limited | done |
+| robots.txt | src/crawler/robots.py | crawl permissions | done |
+| Document Store | src/storage/store.py | JSON persistence | done |
+| REST API | src/server/api.py | /search + /index | done |
 
 ## Architecture
 
@@ -53,5 +53,4 @@ python -m pytest tests/
 
 ## Status
 
-Core indexer (inverted index + TF-IDF) and search CLI: working.
-Crawler, BM25, query parser, REST API: stubs only.
+Complete. All modules implemented: BM25 scoring, boolean query parser (AND/OR/NOT/phrases), BFS crawler with robots.txt, JSON document store, Flask REST API. 28 tests passing.
