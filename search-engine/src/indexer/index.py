@@ -6,6 +6,7 @@ import sys
 from collections import defaultdict
 
 from .tokenizer import tokenize
+from .tfidf import bm25_score
 
 
 class InvertedIndex:
@@ -24,13 +25,14 @@ class InvertedIndex:
     def search(self, query: str, top_k: int = 10) -> list[tuple[str, float]]:
         tokens = tokenize(query)
         scores: dict[str, float] = defaultdict(float)
+        avg_doc_len = sum(self.doc_lengths.values()) / max(self.doc_count, 1) if self.doc_count > 0 else 0
         for token in tokens:
             if token not in self.index:
                 continue
             df = len(self.index[token])
-            idf = math.log((self.doc_count + 1) / (df + 1))
             for doc_id, tf in self.index[token].items():
-                scores[doc_id] += tf * idf
+                doc_len = self.doc_lengths.get(doc_id, 0)
+                scores[doc_id] += bm25_score(tf, df, self.doc_count, doc_len, avg_doc_len)
         ranked = sorted(scores.items(), key=lambda x: -x[1])
         return ranked[:top_k]
 

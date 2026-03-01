@@ -1,9 +1,7 @@
-"""Document store — JSON persistence for raw document content — stub."""
-# TODO: implement
+"""Document store -- JSON persistence for raw document content."""
 from __future__ import annotations
 import json
 from pathlib import Path
-
 
 class DocumentStore:
     """Persist and retrieve raw document text by doc_id."""
@@ -14,16 +12,19 @@ class DocumentStore:
 
     def add(self, doc_id: str, text: str):
         """Store raw text for a document."""
-        raise NotImplementedError
+        self._data[doc_id] = text
 
     def get(self, doc_id: str) -> str | None:
         """Retrieve raw text for a document."""
-        raise NotImplementedError
+        return self._data.get(doc_id)
 
     def save(self):
         """Persist store to disk as JSON."""
-        raise NotImplementedError
+        with open(self.path, "w") as f:
+            json.dump(self._data, f)
 
     def load(self):
         """Load store from disk."""
-        raise NotImplementedError
+        if self.path.exists():
+            with open(self.path) as f:
+                self._data = json.load(f)
