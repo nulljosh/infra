@@ -182,7 +182,10 @@ func (g *Gateway) handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	startTime := time.Now()
-	clientIP := strings.Split(r.RemoteAddr, ":")[0]
+	clientIP := r.RemoteAddr
+	if idx := strings.LastIndex(r.RemoteAddr, ":"); idx != -1 {
+		clientIP = r.RemoteAddr[:idx]
+	}
 
 	// Log entry
 	logEntry := LogEntry{
