@@ -1,6 +1,7 @@
 use nalgebra as na;
 use na::{Matrix4, Point3, Vector3, Vector4};
 use std::f32::consts::PI;
+use std::io::Write;
 
 const WIDTH: usize = 800;
 const HEIGHT: usize = 600;
@@ -86,8 +87,13 @@ impl Framebuffer {
         self.zbuffer.fill(f32::INFINITY);
     }
 
-    fn get_pixels(&self) -> &[Color] {
-        &self.pixels
+    fn write_ppm(&self, writer: &mut impl Write) -> std::io::Result<()> {
+        // P6 binary PPM format
+        write!(writer, "P6\n{} {}\n255\n", self.width, self.height)?;
+        for pixel in &self.pixels {
+            writer.write_all(&[pixel.r, pixel.g, pixel.b])?;
+        }
+        Ok(())
     }
 }
 
@@ -207,7 +213,7 @@ fn create_rotation_z(angle: f32) -> Matrix4<f32> {
     )
 }
 
-fn create_translation(tx: f32, ty: f32, tz: f32) -> Matrix4<f32> {
+fn _create_translation(tx: f32, ty: f32, tz: f32) -> Matrix4<f32> {
     Matrix4::new(
         1.0, 0.0, 0.0, tx,
         0.0, 1.0, 0.0, ty,
@@ -225,7 +231,7 @@ fn create_scale(sx: f32, sy: f32, sz: f32) -> Matrix4<f32> {
     )
 }
 
-fn create_projection(fov: f32, aspect: f32, near: f32, far: f32) -> Matrix4<f32> {
+fn _create_projection(fov: f32, aspect: f32, near: f32, far: f32) -> Matrix4<f32> {
     let f = 1.0 / (fov / 2.0).tan();
     let c = (far + near) / (near - far);
     let d = (2.0 * far * near) / (near - far);
@@ -247,19 +253,19 @@ fn calculate_lighting(normal: Vector3<f32>, light_dir: Vector3<f32>) -> f32 {
 // Cube mesh
 struct Vertex {
     pos: Point3<f32>,
-    normal: Vector3<f32>,
+    _normal: Vector3<f32>,
 }
 
 fn create_cube() -> (Vec<Vertex>, Vec<(usize, usize, usize)>) {
     let vertices = vec![
-        Vertex { pos: Point3::new(-1.0, -1.0, -1.0), normal: Vector3::new(0.0, 0.0, -1.0) },
-        Vertex { pos: Point3::new(1.0, -1.0, -1.0), normal: Vector3::new(0.0, 0.0, -1.0) },
-        Vertex { pos: Point3::new(1.0, 1.0, -1.0), normal: Vector3::new(0.0, 0.0, -1.0) },
-        Vertex { pos: Point3::new(-1.0, 1.0, -1.0), normal: Vector3::new(0.0, 0.0, -1.0) },
-        Vertex { pos: Point3::new(-1.0, -1.0, 1.0), normal: Vector3::new(0.0, 0.0, 1.0) },
-        Vertex { pos: Point3::new(1.0, -1.0, 1.0), normal: Vector3::new(0.0, 0.0, 1.0) },
-        Vertex { pos: Point3::new(1.0, 1.0, 1.0), normal: Vector3::new(0.0, 0.0, 1.0) },
-        Vertex { pos: Point3::new(-1.0, 1.0, 1.0), normal: Vector3::new(0.0, 0.0, 1.0) },
+        Vertex { pos: Point3::new(-1.0, -1.0, -1.0), _normal: Vector3::new(0.0, 0.0, -1.0) },
+        Vertex { pos: Point3::new(1.0, -1.0, -1.0), _normal: Vector3::new(0.0, 0.0, -1.0) },
+        Vertex { pos: Point3::new(1.0, 1.0, -1.0), _normal: Vector3::new(0.0, 0.0, -1.0) },
+        Vertex { pos: Point3::new(-1.0, 1.0, -1.0), _normal: Vector3::new(0.0, 0.0, -1.0) },
+        Vertex { pos: Point3::new(-1.0, -1.0, 1.0), _normal: Vector3::new(0.0, 0.0, 1.0) },
+        Vertex { pos: Point3::new(1.0, -1.0, 1.0), _normal: Vector3::new(0.0, 0.0, 1.0) },
+        Vertex { pos: Point3::new(1.0, 1.0, 1.0), _normal: Vector3::new(0.0, 0.0, 1.0) },
+        Vertex { pos: Point3::new(-1.0, 1.0, 1.0), _normal: Vector3::new(0.0, 0.0, 1.0) },
     ];
 
     let faces = vec![
@@ -275,7 +281,7 @@ fn create_cube() -> (Vec<Vertex>, Vec<(usize, usize, usize)>) {
 }
 
 fn project_point(p: Point3<f32>) -> (i32, i32, f32) {
-    let z = p.z + 5.0; // adjust z for perspective
+    let z = p.z + 5.0;
     let scale = 300.0 / z.max(0.1);
     let x = (p.x * scale + WIDTH as f32 / 2.0) as i32;
     let y = (p.y * scale + HEIGHT as f32 / 2.0) as i32;
@@ -283,103 +289,75 @@ fn project_point(p: Point3<f32>) -> (i32, i32, f32) {
 }
 
 fn main() {
-    let sdl_context = sdl2::init().expect("Failed to init SDL2");
-    let video_subsystem = sdl_context.video().expect("Failed to get video subsystem");
-    let window = video_subsystem
-        .window("Graphics Renderer", WIDTH as u32, HEIGHT as u32)
-        .position_centered()
-        .build()
-        .expect("Failed to create window");
-
-    let mut canvas = window.into_canvas().build().expect("Failed to build canvas");
-    let texture_creator = canvas.texture_creator();
-
-    let mut texture = texture_creator
-        .create_texture_target(sdl2::pixels::PixelFormatEnum::RGB24, WIDTH as u32, HEIGHT as u32)
-        .expect("Failed to create texture");
-
     let mut fb = Framebuffer::new(WIDTH, HEIGHT);
-    let mut event_pump = sdl_context.event_pump().expect("Failed to get event pump");
-
     let (cube_vertices, cube_faces) = create_cube();
     let light_dir = Vector3::new(1.0, 1.0, 1.0).normalize();
 
-    let mut angle = 0.0;
-    let mut running = true;
+    fb.clear();
 
-    while running {
-        for event in event_pump.poll_iter() {
-            match event {
-                sdl2::event::Event::Quit { .. } => running = false,
-                _ => {}
-            }
-        }
+    // Draw 2D shapes
+    draw_rect(&mut fb, 50, 50, 100, 100, Color::red(), 0.0);
+    draw_circle(&mut fb, 700, 100, 40, Color::green(), 0.0);
+    draw_triangle(&mut fb, (400, 50), (450, 150), (350, 150), Color::blue(), 0.0);
 
-        fb.clear();
+    // Draw polygon
+    draw_line(&mut fb, 50, 300, 100, 250, Color::cyan(), 0.0);
+    draw_line(&mut fb, 100, 250, 150, 300, Color::cyan(), 0.0);
+    draw_line(&mut fb, 150, 300, 120, 350, Color::cyan(), 0.0);
+    draw_line(&mut fb, 120, 350, 30, 350, Color::cyan(), 0.0);
+    draw_line(&mut fb, 30, 350, 50, 300, Color::cyan(), 0.0);
 
-        // Draw 2D shapes
-        draw_rect(&mut fb, 50, 50, 100, 100, Color::red(), 0.0);
-        draw_circle(&mut fb, 700, 100, 40, Color::green(), 0.0);
-        draw_triangle(&mut fb, (400, 50), (450, 150), (350, 150), Color::blue(), 0.0);
+    // Draw rotating cube at a fixed angle for static output
+    let angle = 0.8;
+    let rot_x = create_rotation_x(angle * 0.5);
+    let rot_y = create_rotation_y(angle);
+    let rot_z = create_rotation_z(angle * 0.3);
+    let scale = create_scale(1.5, 1.5, 1.5);
 
-        // Draw polygon
-        draw_line(&mut fb, 50, 300, 100, 250, Color::cyan(), 0.0);
-        draw_line(&mut fb, 100, 250, 150, 300, Color::cyan(), 0.0);
-        draw_line(&mut fb, 150, 300, 120, 350, Color::cyan(), 0.0);
-        draw_line(&mut fb, 120, 350, 30, 350, Color::cyan(), 0.0);
-        draw_line(&mut fb, 30, 350, 50, 300, Color::cyan(), 0.0);
+    let transform = rot_y * rot_x * rot_z * scale;
 
-        // Draw rotating cube
-        let rot_x = create_rotation_x(angle * 0.5);
-        let rot_y = create_rotation_y(angle);
-        let rot_z = create_rotation_z(angle * 0.3);
-        let trans = create_translation(0.0, 0.0, 0.0);
-        let scale = create_scale(1.5, 1.5, 1.5);
-
-        let transform = trans * rot_y * rot_x * rot_z * scale;
-
-        let mut projected_faces = Vec::new();
-        for vertex in &cube_vertices {
-            let p = Vector4::new(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0);
-            let p_transformed = transform * p;
-            let p3 = Point3::new(p_transformed.x, p_transformed.y, p_transformed.z);
-            projected_faces.push(project_point(p3));
-        }
-
-        let face_colors = vec![
-            Color::red(), Color::red(),
-            Color::green(), Color::green(),
-            Color::blue(), Color::blue(),
-            Color::yellow(), Color::yellow(),
-            Color::cyan(), Color::cyan(),
-            Color::magenta(), Color::magenta(),
-        ];
-
-        for (i, (v0, v1, v2)) in cube_faces.iter().enumerate() {
-            let (x0, y0, z0) = projected_faces[*v0];
-            let (x1, y1, z1) = projected_faces[*v1];
-            let (x2, y2, z2) = projected_faces[*v2];
-
-            let avg_z = (z0 + z1 + z2) / 3.0;
-            let color = face_colors[i];
-
-            draw_triangle(&mut fb, (x0, y0), (x1, y1), (x2, y2), color, avg_z);
-        }
-
-        // Render to texture
-        texture
-            .update(None, unsafe {
-                std::slice::from_raw_parts(
-                    fb.get_pixels().as_ptr() as *const u8,
-                    WIDTH * HEIGHT * 3,
-                )
-            }, WIDTH * 3)
-            .expect("Failed to update texture");
-
-        canvas.copy(&texture, None, None).expect("Failed to copy texture");
-        canvas.present();
-
-        angle += 0.02;
-        std::thread::sleep(std::time::Duration::from_millis(16));
+    let mut projected: Vec<(i32, i32, f32)> = Vec::new();
+    for vertex in &cube_vertices {
+        let p = Vector4::new(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0);
+        let pt = transform * p;
+        projected.push(project_point(Point3::new(pt.x, pt.y, pt.z)));
     }
+
+    let face_colors = vec![
+        Color::red(), Color::red(),
+        Color::green(), Color::green(),
+        Color::blue(), Color::blue(),
+        Color::yellow(), Color::yellow(),
+        Color::cyan(), Color::cyan(),
+        Color::magenta(), Color::magenta(),
+    ];
+
+    // Apply lighting to face colors
+    let face_normals: Vec<Vector3<f32>> = cube_faces.iter().map(|(v0, v1, v2)| {
+        let a = cube_vertices[*v1].pos - cube_vertices[*v0].pos;
+        let b = cube_vertices[*v2].pos - cube_vertices[*v0].pos;
+        a.cross(&b).normalize()
+    }).collect();
+
+    for (i, (v0, v1, v2)) in cube_faces.iter().enumerate() {
+        let (x0, y0, z0) = projected[*v0];
+        let (x1, y1, z1) = projected[*v1];
+        let (x2, y2, z2) = projected[*v2];
+
+        let avg_z = (z0 + z1 + z2) / 3.0;
+        let intensity = calculate_lighting(face_normals[i], light_dir);
+        let base = face_colors[i];
+        let lit = Color::new(
+            (base.r as f32 * intensity) as u8,
+            (base.g as f32 * intensity) as u8,
+            (base.b as f32 * intensity) as u8,
+        );
+
+        draw_triangle(&mut fb, (x0, y0), (x1, y1), (x2, y2), lit, avg_z);
+    }
+
+    // Write PPM to stdout
+    let stdout = std::io::stdout();
+    let mut handle = stdout.lock();
+    fb.write_ppm(&mut handle).expect("Failed to write PPM to stdout");
 }
