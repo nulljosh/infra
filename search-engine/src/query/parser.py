@@ -1,5 +1,4 @@
 """Boolean and phrase query parser."""
-import re
 from dataclasses import dataclass, field
 
 class QueryNode:
@@ -47,14 +46,22 @@ def _tokenize_query(query: str) -> list[str]:
             i = j
     return tokens
 
+def _flatten_and(children: list[QueryNode]) -> QueryNode:
+    """Collapse a list of AND children into a single node."""
+    if not children:
+        return AndNode()
+    if len(children) == 1:
+        return children[0]
+    return AndNode(children=children)
+
 def parse(query: str) -> QueryNode:
     """Parse a query string into an AST. Supports AND, OR, NOT, phrases."""
     tokens = _tokenize_query(query)
     if not tokens:
         return AndNode(children=[])
 
-    or_groups = []
-    current_and = []
+    or_groups: list[QueryNode] = []
+    current_and: list[QueryNode] = []
 
     i = 0
     while i < len(tokens):
@@ -62,7 +69,7 @@ def parse(query: str) -> QueryNode:
         upper = tok.upper()
 
         if upper == "OR":
-            or_groups.append(AndNode(children=current_and) if len(current_and) > 1 else (current_and[0] if current_and else AndNode()))
+            or_groups.append(_flatten_and(current_and))
             current_and = []
         elif upper == "AND":
             pass  # implicit AND, skip
@@ -75,7 +82,7 @@ def parse(query: str) -> QueryNode:
             current_and.append(_parse_term(tok))
         i += 1
 
-    or_groups.append(AndNode(children=current_and) if len(current_and) > 1 else (current_and[0] if current_and else AndNode()))
+    or_groups.append(_flatten_and(current_and))
 
     if len(or_groups) == 1:
         return or_groups[0]

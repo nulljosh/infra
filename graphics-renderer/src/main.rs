@@ -130,15 +130,21 @@ fn draw_circle(fb: &mut Framebuffer, cx: i32, cy: i32, radius: i32, color: Color
     let mut y = 0;
     let mut err = 0;
 
+    let plot = |fb: &mut Framebuffer, px: i32, py: i32| {
+        if px >= 0 && py >= 0 {
+            fb.set_pixel(px as usize, py as usize, color, z);
+        }
+    };
+
     while x >= y {
-        fb.set_pixel((cx + x) as usize, (cy + y) as usize, color, z);
-        fb.set_pixel((cx - x) as usize, (cy + y) as usize, color, z);
-        fb.set_pixel((cx + x) as usize, (cy - y) as usize, color, z);
-        fb.set_pixel((cx - x) as usize, (cy - y) as usize, color, z);
-        fb.set_pixel((cx + y) as usize, (cy + x) as usize, color, z);
-        fb.set_pixel((cx - y) as usize, (cy + x) as usize, color, z);
-        fb.set_pixel((cx + y) as usize, (cy - x) as usize, color, z);
-        fb.set_pixel((cx - y) as usize, (cy - x) as usize, color, z);
+        plot(fb, cx + x, cy + y);
+        plot(fb, cx - x, cy + y);
+        plot(fb, cx + x, cy - y);
+        plot(fb, cx - x, cy - y);
+        plot(fb, cx + y, cy + x);
+        plot(fb, cx - y, cy + x);
+        plot(fb, cx + y, cy - x);
+        plot(fb, cx - y, cy - x);
 
         if err <= 0 {
             y += 1;

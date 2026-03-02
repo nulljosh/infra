@@ -176,11 +176,6 @@ func (g *Gateway) handleHealth(w http.ResponseWriter, r *http.Request) {
 
 // handleRequest handles all proxy requests
 func (g *Gateway) handleRequest(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "/health" {
-		g.handleHealth(w, r)
-		return
-	}
-
 	startTime := time.Now()
 	clientIP := r.RemoteAddr
 	if idx := strings.LastIndex(r.RemoteAddr, ":"); idx != -1 {
@@ -291,41 +286,19 @@ func (rl *RateLimiter) Allow(ip, key string, config *Config) bool {
 	rl.mu.Lock()
 	defer rl.mu.Unlock()
 
-	// Check IP limit
-	if !rl.allowIP(ip, config.RateLimitPerIP) {
+	if !allowBucket(rl.ipLimits, ip, config.RateLimitPerIP) {
 		return false
 	}
 
-	// Check key limit
-	if key != "" && !rl.allowKey(key, config.RateLimitPerKey) {
+	if key != "" && !allowBucket(rl.keyLimits, key, config.RateLimitPerKey) {
 		return false
 	}
 
 	return true
 }
 
-func (rl *RateLimiter) allowIP(ip string, limit int) bool {
-	bucket, exists := rl.ipLimits[ip]
-	if !exists {
-		bucket = &TokenBucket{
-			tokens:     float64(limit),
-			capacity:   float64(limit),
-			refillRate: float64(limit) / 60.0, // per second
-			lastRefill: time.Now(),
-		}
-		rl.ipLimits[ip] = bucket
-	}
-
-	bucket.refill()
-	if bucket.tokens >= 1 {
-		bucket.tokens--
-		return true
-	}
-	return false
-}
-
-func (rl *RateLimiter) allowKey(key string, limit int) bool {
-	bucket, exists := rl.keyLimits[key]
+func allowBucket(buckets map[string]*TokenBucket, key string, limit int) bool {
+	bucket, exists := buckets[key]
 	if !exists {
 		bucket = &TokenBucket{
 			tokens:     float64(limit),
@@ -333,7 +306,7 @@ func (rl *RateLimiter) allowKey(key string, limit int) bool {
 			refillRate: float64(limit) / 60.0,
 			lastRefill: time.Now(),
 		}
-		rl.keyLimits[key] = bucket
+		buckets[key] = bucket
 	}
 
 	bucket.refill()
@@ -350,13 +323,6 @@ func (tb *TokenBucket) refill() {
 	elapsed := now.Sub(tb.lastRefill).Seconds()
 	tb.tokens = min(tb.capacity, tb.tokens+elapsed*tb.refillRate)
 	tb.lastRefill = now
-}
-
-func min(a, b float64) float64 {
-	if a < b {
-		return a
-	}
-	return b
 }
 
 // healthCheckLoop periodically checks backend health
@@ -385,25 +351,20 @@ func (g *Gateway) checkBackendHealth(backend *Backend) {
 	}
 
 	resp, err := client.Get(healthURL)
+	healthy := err == nil && resp != nil && resp.StatusCode == http.StatusOK
+	if resp != nil {
+		resp.Body.Close()
+	}
 
 	backend.mu.Lock()
 	wasAlive := backend.Alive
-
-	if err != nil || (resp != nil && resp.StatusCode != http.StatusOK) {
-		backend.Alive = false
-		if wasAlive {
-			log.Printf("Backend %s is now unhealthy", backend.URL.String())
-		}
-	} else {
-		backend.Alive = true
-		if !wasAlive {
-			log.Printf("Backend %s is now healthy", backend.URL.String())
-		}
-	}
+	backend.Alive = healthy
 	backend.mu.Unlock()
 
-	if resp != nil {
-		resp.Body.Close()
+	if healthy && !wasAlive {
+		log.Printf("Backend %s is now healthy", backend.URL.String())
+	} else if !healthy && wasAlive {
+		log.Printf("Backend %s is now unhealthy", backend.URL.String())
 	}
 }
 

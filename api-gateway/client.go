@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 // TestClient provides methods for testing the gateway
@@ -25,7 +26,7 @@ func NewTestClient(baseURL, apiKey string) *TestClient {
 		baseURL: strings.TrimSuffix(baseURL, "/"),
 		apiKey:  apiKey,
 		client: &http.Client{
-			Timeout: 10,
+			Timeout: 10 * time.Second,
 		},
 	}
 }

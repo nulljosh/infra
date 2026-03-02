@@ -1,6 +1,5 @@
-"""Search engine — inverted index builder."""
+"""Search engine -- inverted index builder."""
 import json
-import math
 import os
 import sys
 from collections import defaultdict
@@ -25,7 +24,9 @@ class InvertedIndex:
     def search(self, query: str, top_k: int = 10) -> list[tuple[str, float]]:
         tokens = tokenize(query)
         scores: dict[str, float] = defaultdict(float)
-        avg_doc_len = sum(self.doc_lengths.values()) / max(self.doc_count, 1) if self.doc_count > 0 else 0
+        if self.doc_count == 0:
+            return []
+        avg_doc_len = sum(self.doc_lengths.values()) / self.doc_count
         for token in tokens:
             if token not in self.index:
                 continue
