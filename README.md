@@ -35,3 +35,28 @@ cd graphics-renderer && cargo run
 ## License
 
 MIT 2026 Joshua Trommel
+
+## Roadmap
+
+### key-value-store
+- [ ] Compaction (merge log segments)
+- [ ] TTL expiration
+- [ ] Replication (leader-follower)
+
+### search-engine
+- [ ] Web crawler
+- [ ] BM25 ranking
+- [ ] REST API server
+- [ ] Result snippets with highlighting
+
+### api-gateway
+- [ ] JWT authentication middleware
+- [ ] WebSocket proxy
+- [ ] Dashboard UI
+- [ ] OpenAPI route discovery
+
+### graphics-renderer
+- [ ] Triangle mesh support
+- [ ] Texture mapping
+- [ ] Scene file format (JSON/YAML)
+- [ ] Real-time preview window
