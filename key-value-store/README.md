@@ -1,4 +1,4 @@
-# Build Your Own Key-Value Store
+# Key-Value Store
 
 A persistent key-value database in Rust, inspired by Bitcask/RocksDB.
 

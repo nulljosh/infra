@@ -1,4 +1,4 @@
-# Build Your Own Search Engine
+# Search Engine
 
 TF-IDF + BM25 local search engine. Crawl, index, query.
 

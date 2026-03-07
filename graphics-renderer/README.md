@@ -1,4 +1,4 @@
-# Build Your Own Graphics Renderer
+# Graphics Renderer
 
 A software rasterizer / ray tracer in Rust — render 3D scenes to images.
 
