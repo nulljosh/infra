@@ -1,4 +1,8 @@
+![API Gateway](icon.svg)
+
 # API Gateway
+
+![version](https://img.shields.io/badge/version-v0.1.0-blue)
 
 A production-ready API Gateway written in Go with request routing, rate limiting, authentication, load balancing, and health checks.
 

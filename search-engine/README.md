@@ -1,4 +1,8 @@
+![Search Engine](icon.svg)
+
 # Search Engine
+
+![version](https://img.shields.io/badge/version-v0.1.0-blue)
 
 TF-IDF + BM25 local search engine. Crawl, index, query.
 

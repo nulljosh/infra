@@ -1,4 +1,8 @@
+![Key-Value Store](icon.svg)
+
 # Key-Value Store
+
+![version](https://img.shields.io/badge/version-v0.1.0-blue)
 
 A persistent key-value database in Rust, inspired by Bitcask/RocksDB.
 

@@ -1,4 +1,8 @@
+![Graphics Renderer](icon.svg)
+
 # Graphics Renderer
+
+![version](https://img.shields.io/badge/version-v0.1.0-blue)
 
 A software rasterizer / ray tracer in Rust — render 3D scenes to images.
 
