@@ -5,24 +5,11 @@
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
-use std::sync::Once;
-
-static BUILD: Once = Once::new();
 
 fn binary_path() -> PathBuf {
-    let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let bin = manifest.join("target/debug/kvstore");
-    BUILD.call_once(|| {
-        let status = Command::new("cargo")
-            .args(["build", "--quiet"])
-            .current_dir(&manifest)
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .status()
-            .expect("failed to build kvstore");
-        assert!(status.success(), "cargo build failed");
-    });
-    bin
+    // CARGO_BIN_EXE_<name> is set by cargo test automatically for binaries
+    // defined in the same package. No manual build step needed.
+    PathBuf::from(env!("CARGO_BIN_EXE_kvstore"))
 }
 
 fn run_commands(input: &str) -> String {
