@@ -60,3 +60,9 @@ MIT 2026 Joshua Trommel
 - [ ] Texture mapping
 - [ ] Scene file format (JSON/YAML)
 - [ ] Real-time preview window
+
+## Quick Commands
+- `./scripts/simplify.sh` - normalize project structure
+- `./scripts/monetize.sh . --write` - generate monetization plan (if available)
+- `./scripts/audit.sh .` - run fast project audit (if available)
+- `./scripts/ship.sh .` - run checks and ship (if available)

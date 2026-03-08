@@ -16,3 +16,9 @@ Infrastructure monorepo -- four standalone projects. No build dependencies betwe
 - Go: `gofmt`, standard library preferred
 - Python: snake_case, type hints, pytest for tests
 - No shared dependencies or cross-project imports
+
+## Quick Commands
+- `./scripts/simplify.sh`
+- `./scripts/monetize.sh . --write`
+- `./scripts/audit.sh .`
+- `./scripts/ship.sh .`
