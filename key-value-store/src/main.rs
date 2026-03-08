@@ -22,6 +22,16 @@ impl KvStore {
     fn delete(&mut self, key: &str) -> bool {
         self.data.remove(key).is_some()
     }
+
+    fn keys(&self) -> Vec<&String> {
+        let mut keys: Vec<&String> = self.data.keys().collect();
+        keys.sort();
+        keys
+    }
+
+    fn count(&self) -> usize {
+        self.data.len()
+    }
 }
 
 fn main() {
@@ -45,8 +55,12 @@ fn main() {
             ["del", key] => {
                 if store.delete(key) { println!("OK") } else { println!("(nil)") }
             }
+            ["keys"] => {
+                for k in store.keys() { println!("{k}"); }
+            }
+            ["count"] => println!("{}", store.count()),
             ["quit"] | ["exit"] => break,
-            _ => println!("Commands: get <key>, set <key> <value>, del <key>, quit"),
+            _ => println!("Commands: get <key>, set <key> <value>, del <key>, keys, count, quit"),
         }
         print!("kvstore> ");
         io::stdout().flush().unwrap();
