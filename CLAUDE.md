@@ -1,24 +1,24 @@
-# infra
+# Infra
 
-Infrastructure monorepo -- four standalone projects. No build dependencies between them.
+## Rules
 
-## Projects
-
-- **key-value-store** (Rust) -- Persistent KV database, Bitcask-style. `cargo run` / `cargo test`
-- **search-engine** (Python) -- TF-IDF search engine. `pip install -r requirements.txt`, `pytest`
-- **api-gateway** (Go) -- API gateway with rate limiting + load balancing. `go run main.go`, `go test ./...`
-- **graphics-renderer** (Rust) -- Ray tracer. `cargo run` / `cargo test`
-
-## Conventions
-
-- Each project is fully standalone with its own README, CLAUDE.md, and architecture.svg
+- Each project is standalone, no shared dependencies
 - Rust: `cargo fmt`, `cargo clippy`
 - Go: `gofmt`, standard library preferred
-- Python: snake_case, type hints, pytest for tests
-- No shared dependencies or cross-project imports
+- Python: snake_case, type hints, pytest
 
-## Quick Commands
-- `./scripts/simplify.sh`
-- `./scripts/monetize.sh . --write`
-- `./scripts/audit.sh .`
-- `./scripts/ship.sh .`
+## Run
+
+```bash
+# key-value-store
+cd key-value-store && cargo run && cargo test
+
+# api-gateway
+cd api-gateway && go run main.go && go test ./...
+
+# search-engine
+cd search-engine && pip install -r requirements.txt && pytest
+
+# graphics-renderer
+cd graphics-renderer && cargo run && cargo test
+```

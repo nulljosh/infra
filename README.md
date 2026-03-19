@@ -1,68 +1,36 @@
-<div align="center">
-  <img src="icon.svg" width="120" />
-  <h1>infra</h1>
-</div>
+![Infra](icon.svg)
 
-Infrastructure project monorepo. Four standalone projects covering persistence, search, networking, and graphics.
+# Infra
 
-<img src="architecture.svg" alt="Infra Architecture" width="700">
+![version](https://img.shields.io/badge/version-v1.0.0-blue)
+
+Infrastructure monorepo. Persistence, networking, search, graphics, and distributed systems.
 
 ## Projects
 
-| Project | Language | LOC | Status | Description |
-|---------|----------|-----|--------|-------------|
-| [key-value-store](./key-value-store) | Rust | 444 | Complete | Persistent KV database (Bitcask-style). Log-structured storage, crash recovery, TCP server |
-| [search-engine](./search-engine) | Python | 196 | Partial | TF-IDF search engine. Indexer + CLI working; crawler, BM25, REST API incomplete |
-| [api-gateway](./api-gateway) | Go | 2244 | Complete | Production-ready API gateway. Routing, rate limiting, load balancing, health checks |
-| [graphics-renderer](./graphics-renderer) | Rust | 385 | Complete | Ray tracer with Phong lighting, shadows, reflections. PPM/PNG output |
+- **key-value-store** (Rust) -- Persistent KV database, Bitcask-style. Log-structured storage, crash recovery, TCP server. 35/35 tests
+- **api-gateway** (Go) -- Production-ready API gateway. Routing, rate limiting, load balancing, health checks
+- **search-engine** (Python) -- TF-IDF search engine. Indexer + CLI working; crawler and BM25 incomplete
+- **graphics-renderer** (Rust) -- Ray tracer. Phong lighting, shadows, reflections, PPM/PNG output
+- **network-stack** -- Network stack (scaffold)
+- **distributed-systems** -- Distributed systems (scaffold)
 
-## Quick Start
+## Run
 
 ```bash
-# Key-value store
 cd key-value-store && cargo run
-
-# Search engine
-cd search-engine && pip install -r requirements.txt && python -m src.query.search "query"
-
-# API gateway
 cd api-gateway && go run main.go -mode gateway
-
-# Graphics renderer
+cd search-engine && pip install -r requirements.txt && python -m src.query.search "query"
 cd graphics-renderer && cargo run
 ```
+
+## Roadmap
+
+- key-value-store: compaction, TTL expiration, replication
+- search-engine: web crawler, BM25, REST API
+- api-gateway: JWT auth, WebSocket proxy, dashboard
+- graphics-renderer: triangle meshes, texture mapping, scene files
 
 ## License
 
 MIT 2026 Joshua Trommel
-
-## Roadmap
-
-### key-value-store
-- [ ] Compaction (merge log segments)
-- [ ] TTL expiration
-- [ ] Replication (leader-follower)
-
-### search-engine
-- [ ] Web crawler
-- [ ] BM25 ranking
-- [ ] REST API server
-- [ ] Result snippets with highlighting
-
-### api-gateway
-- [ ] JWT authentication middleware
-- [ ] WebSocket proxy
-- [ ] Dashboard UI
-- [ ] OpenAPI route discovery
-
-### graphics-renderer
-- [ ] Triangle mesh support
-- [ ] Texture mapping
-- [ ] Scene file format (JSON/YAML)
-- [ ] Real-time preview window
-
-## Quick Commands
-- `./scripts/simplify.sh` - normalize project structure
-- `./scripts/monetize.sh . --write` - generate monetization plan (if available)
-- `./scripts/audit.sh .` - run fast project audit (if available)
-- `./scripts/ship.sh .` - run checks and ship (if available)
