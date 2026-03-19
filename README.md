@@ -12,8 +12,6 @@ Infrastructure monorepo. Persistence, networking, search, graphics, and distribu
 - **api-gateway** (Go) -- Production-ready API gateway. Routing, rate limiting, load balancing, health checks
 - **search-engine** (Python) -- TF-IDF search engine. Indexer + CLI working; crawler and BM25 incomplete
 - **graphics-renderer** (Rust) -- Ray tracer. Phong lighting, shadows, reflections, PPM/PNG output
-- **network-stack** -- Network stack (scaffold)
-- **distributed-systems** -- Distributed systems (scaffold)
 
 ## Run
 
@@ -28,8 +26,7 @@ cd graphics-renderer && cargo run
 
 - key-value-store: compaction, TTL expiration, replication
 - search-engine: web crawler, BM25, REST API
-- api-gateway: JWT auth, WebSocket proxy, dashboard
-- graphics-renderer: triangle meshes, texture mapping, scene files
+- graphics-renderer: triangle meshes, texture mapping
 
 ## License
 
